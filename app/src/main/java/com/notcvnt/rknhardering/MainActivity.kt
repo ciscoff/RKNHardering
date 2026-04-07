@@ -18,6 +18,7 @@ import androidx.lifecycle.lifecycleScope
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 import com.notcvnt.rknhardering.checker.VpnCheckRunner
+import com.notcvnt.rknhardering.model.BypassResult
 import com.notcvnt.rknhardering.model.CategoryResult
 import com.notcvnt.rknhardering.model.CheckResult
 import com.notcvnt.rknhardering.model.Finding
@@ -41,6 +42,11 @@ class MainActivity : AppCompatActivity() {
     private lateinit var findingsGeoIp: LinearLayout
     private lateinit var findingsDirect: LinearLayout
     private lateinit var findingsIndirect: LinearLayout
+    private lateinit var cardBypass: MaterialCardView
+    private lateinit var iconBypass: ImageView
+    private lateinit var statusBypass: TextView
+    private lateinit var textBypassProgress: TextView
+    private lateinit var findingsBypass: LinearLayout
     private lateinit var iconVerdict: ImageView
     private lateinit var textVerdict: TextView
 
@@ -77,6 +83,11 @@ class MainActivity : AppCompatActivity() {
         findingsGeoIp = findViewById(R.id.findingsGeoIp)
         findingsDirect = findViewById(R.id.findingsDirect)
         findingsIndirect = findViewById(R.id.findingsIndirect)
+        cardBypass = findViewById(R.id.cardBypass)
+        iconBypass = findViewById(R.id.iconBypass)
+        statusBypass = findViewById(R.id.statusBypass)
+        textBypassProgress = findViewById(R.id.textBypassProgress)
+        findingsBypass = findViewById(R.id.findingsBypass)
         iconVerdict = findViewById(R.id.iconVerdict)
         textVerdict = findViewById(R.id.textVerdict)
     }
@@ -86,8 +97,21 @@ class MainActivity : AppCompatActivity() {
         progressBar.visibility = View.VISIBLE
         hideCards()
 
+        // Show bypass card immediately with scanning status
+        cardBypass.visibility = View.VISIBLE
+        iconBypass.setImageResource(R.drawable.ic_help)
+        statusBypass.text = "Сканирование..."
+        statusBypass.setTextColor(ContextCompat.getColor(this, R.color.verdict_yellow))
+        textBypassProgress.visibility = View.VISIBLE
+        textBypassProgress.text = "Подготовка..."
+        findingsBypass.removeAllViews()
+
         lifecycleScope.launch {
-            val result = VpnCheckRunner.run(this@MainActivity)
+            val result = VpnCheckRunner.run(this@MainActivity) { progress ->
+                kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
+                    textBypassProgress.text = "${progress.phase}: ${progress.detail}"
+                }
+            }
             progressBar.visibility = View.GONE
             btnRunCheck.isEnabled = true
             displayResult(result)
@@ -98,6 +122,7 @@ class MainActivity : AppCompatActivity() {
         cardGeoIp.visibility = View.GONE
         cardDirect.visibility = View.GONE
         cardIndirect.visibility = View.GONE
+        cardBypass.visibility = View.GONE
         cardVerdict.visibility = View.GONE
     }
 
@@ -111,6 +136,7 @@ class MainActivity : AppCompatActivity() {
         displayCategory(
             result.indirectSigns, cardIndirect, iconIndirect, statusIndirect, findingsIndirect
         )
+        displayBypass(result.bypassResult)
         displayVerdict(result.verdict)
     }
 
@@ -171,6 +197,26 @@ class MainActivity : AppCompatActivity() {
         row.addView(indicator)
         row.addView(description)
         return row
+    }
+
+    private fun displayBypass(bypass: BypassResult) {
+        cardBypass.visibility = View.VISIBLE
+        textBypassProgress.visibility = View.GONE
+
+        if (bypass.detected) {
+            iconBypass.setImageResource(R.drawable.ic_warning)
+            statusBypass.text = "Обнаружено"
+            statusBypass.setTextColor(ContextCompat.getColor(this, R.color.finding_detected))
+        } else {
+            iconBypass.setImageResource(R.drawable.ic_check_circle)
+            statusBypass.text = "Чисто"
+            statusBypass.setTextColor(ContextCompat.getColor(this, R.color.finding_ok))
+        }
+
+        findingsBypass.removeAllViews()
+        for (finding in bypass.findings) {
+            findingsBypass.addView(createFindingView(finding))
+        }
     }
 
     private fun displayVerdict(verdict: Verdict) {

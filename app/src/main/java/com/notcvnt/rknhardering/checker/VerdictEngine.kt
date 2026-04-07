@@ -4,21 +4,15 @@ import com.notcvnt.rknhardering.model.Verdict
 
 object VerdictEngine {
 
-    /**
-     * Table 2 (Section 9) decision matrix:
-     *
-     * GeoIP | Direct | Indirect | Verdict
-     * ------|--------|----------|--------
-     *   -   |   -    |    -     | NOT_DETECTED
-     *   -   |   +    |    -     | NOT_DETECTED
-     *   -   |   -    |    +     | NOT_DETECTED
-     *   +   |   -    |    -     | NEEDS_REVIEW
-     *   -   |   +    |    +     | NEEDS_REVIEW
-     *   +   |   +    |    -     | DETECTED
-     *   +   |   -    |    +     | DETECTED
-     *   +   |   +    |    +     | DETECTED
-     */
-    fun evaluate(geoIpDetected: Boolean, directDetected: Boolean, indirectDetected: Boolean): Verdict {
+    fun evaluate(
+        geoIpDetected: Boolean,
+        directDetected: Boolean,
+        indirectDetected: Boolean,
+        bypassDetected: Boolean = false,
+    ): Verdict {
+        // Bypass detection (open proxy / xray API on localhost) is a strong signal
+        if (bypassDetected) return Verdict.DETECTED
+
         return when {
             geoIpDetected && (directDetected || indirectDetected) -> Verdict.DETECTED
             geoIpDetected -> Verdict.NEEDS_REVIEW

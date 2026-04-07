@@ -1,5 +1,8 @@
 package com.notcvnt.rknhardering.model
 
+import com.notcvnt.rknhardering.probe.ProxyEndpoint
+import com.notcvnt.rknhardering.probe.XrayApiEndpoint
+
 data class Finding(val description: String, val detected: Boolean)
 
 data class CategoryResult(
@@ -14,9 +17,19 @@ enum class Verdict {
     DETECTED
 }
 
+data class BypassResult(
+    val proxyEndpoint: ProxyEndpoint?,
+    val directIp: String?,
+    val proxyIp: String?,
+    val xrayApiEndpoint: XrayApiEndpoint?,
+    val findings: List<Finding>,
+    val detected: Boolean,
+)
+
 data class CheckResult(
     val geoIp: CategoryResult,
     val directSigns: CategoryResult,
     val indirectSigns: CategoryResult,
+    val bypassResult: BypassResult,
     val verdict: Verdict
 )

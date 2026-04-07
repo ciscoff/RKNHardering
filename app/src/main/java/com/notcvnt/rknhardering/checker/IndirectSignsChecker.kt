@@ -3,6 +3,7 @@ package com.notcvnt.rknhardering.checker
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
+import android.os.Build
 import com.notcvnt.rknhardering.model.CategoryResult
 import com.notcvnt.rknhardering.model.Finding
 import java.io.BufferedReader
@@ -35,6 +36,8 @@ object IndirectSignsChecker {
         checkMtu(findings)
         checkRoutingTable(findings)
         checkDns(context, findings)
+        checkDumpsysVpn(findings)
+        checkDumpsysVpnService(findings)
 
         val detected = findings.any { it.detected }
         return CategoryResult(
@@ -202,6 +205,75 @@ object IndirectSignsChecker {
             }
         } catch (e: Exception) {
             findings.add(Finding("Ошибка при проверке DNS: ${e.message}", false))
+        }
+    }
+
+    private fun checkDumpsysVpn(findings: MutableList<Finding>) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return
+        try {
+            val process = Runtime.getRuntime().exec(arrayOf("dumpsys", "vpn_management"))
+            val output = process.inputStream.bufferedReader().readText()
+            process.waitFor()
+
+            if (output.isBlank() || output.contains("Permission Denial") || output.contains("Can't find service")) {
+                findings.add(Finding("dumpsys vpn_management: недоступен", false))
+                return
+            }
+
+            val vpnLines = output.lines().filter {
+                it.contains("Active package name:") || it.contains("Active vpn type:")
+            }
+
+            if (vpnLines.isNotEmpty()) {
+                for (line in vpnLines) {
+                    findings.add(Finding("VPN management: ${line.trim()}", true))
+                }
+            } else if (output.contains("VPNs:")) {
+                val hasActiveVpn = output.lines().any { line ->
+                    val trimmed = line.trim()
+                    trimmed.matches(Regex("^\\d+:.*")) && trimmed.length > 2
+                }
+                if (hasActiveVpn) {
+                    findings.add(Finding("dumpsys vpn_management: обнаружен активный VPN", true))
+                } else {
+                    findings.add(Finding("dumpsys vpn_management: активных VPN нет", false))
+                }
+            } else {
+                findings.add(Finding("dumpsys vpn_management: активных VPN нет", false))
+            }
+        } catch (e: Exception) {
+            findings.add(Finding("dumpsys vpn_management: ${e.message}", false))
+        }
+    }
+
+    private fun checkDumpsysVpnService(findings: MutableList<Finding>) {
+        try {
+            val process = Runtime.getRuntime().exec(arrayOf("dumpsys", "activity", "services", "android.net.VpnService"))
+            val output = process.inputStream.bufferedReader().readText()
+            process.waitFor()
+
+            if (output.isBlank() || output.contains("Permission Denial")) {
+                findings.add(Finding("dumpsys activity services VpnService: недоступен", false))
+                return
+            }
+
+            val serviceRecords = output.lines().filter {
+                it.contains("ServiceRecord") && it.contains("VpnService")
+            }
+
+            if (serviceRecords.isNotEmpty()) {
+                for (line in serviceRecords) {
+                    val trimmed = line.trim()
+                    // Extract package name from ServiceRecord
+                    val packageMatch = Regex("\\{[^}]*\\s+(\\S+/\\S+)\\}").find(trimmed)
+                    val serviceName = packageMatch?.groupValues?.get(1) ?: trimmed
+                    findings.add(Finding("VpnService активен: $serviceName", true))
+                }
+            } else if (output.contains("(nothing)") || !output.contains("ServiceRecord")) {
+                findings.add(Finding("Активные VpnService: не обнаружены", false))
+            }
+        } catch (e: Exception) {
+            findings.add(Finding("dumpsys activity services: ${e.message}", false))
         }
     }
 
