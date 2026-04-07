@@ -16,9 +16,9 @@ class ProxyScanner(
     private val loopbackHosts: List<String> = listOf("127.0.0.1", "::1"),
     private val popularPorts: List<Int> = listOf(1080, 2080, 1081, 10808, 10809, 12334, 7890),
     private val scanRange: IntRange = 1024..65535,
-    private val connectTimeoutMs: Int = 80,
-    private val readTimeoutMs: Int = 120,
-    private val maxConcurrency: Int = 200,
+    private val connectTimeoutMs: Int = 15,
+    private val readTimeoutMs: Int = 30,
+    private val maxConcurrency: Int = 512,
     private val progressUpdateEvery: Int = 256,
 ) {
 
