@@ -33,6 +33,7 @@ object VpnAppCatalog {
     const val FAMILY_PSIPHON = "Psiphon"
     const val FAMILY_LANTERN = "Lantern"
     const val FAMILY_DPI = "DPI bypass"
+    const val FAMILY_AMNEZIA = "AmneziaVPN"
 
     val signatures: List<VpnAppSignature> = listOf(
         VpnAppSignature(
@@ -165,6 +166,18 @@ object VpnAppCatalog {
             packageName = "org.torproject.torbrowser",
             appName = "Tor Browser (official)",
             family = FAMILY_TOR,
+            kind = VpnAppKind.GENERIC_VPN,
+        ),
+        VpnAppSignature(
+            packageName = "org.amnezia.vpn",
+            appName = "AmneziaVPN",
+            family = FAMILY_AMNEZIA,
+            kind = VpnAppKind.GENERIC_VPN,
+        ),
+        VpnAppSignature(
+            packageName = "org.amnezia.awg",
+            appName = "AmneziaWG",
+            family = FAMILY_AMNEZIA,
             kind = VpnAppKind.GENERIC_VPN,
         ),
     )

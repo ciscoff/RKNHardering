@@ -27,4 +27,20 @@ class VpnAppCatalogTest {
         assertTrue(VpnAppCatalog.localhostProxyPorts.contains(2080))
         assertTrue(VpnAppCatalog.localhostProxyPorts.contains(12334))
     }
+
+    @Test
+    fun `detects AmneziaVPN by package name`() {
+        val sig = VpnAppCatalog.findByPackageName("org.amnezia.vpn")
+
+        assertEquals(VpnAppCatalog.FAMILY_AMNEZIA, sig?.family)
+        assertEquals(VpnAppKind.GENERIC_VPN, sig?.kind)
+    }
+
+    @Test
+    fun `detects AmneziaWG by package name`() {
+        val sig = VpnAppCatalog.findByPackageName("org.amnezia.awg")
+
+        assertEquals(VpnAppCatalog.FAMILY_AMNEZIA, sig?.family)
+        assertEquals(VpnAppKind.GENERIC_VPN, sig?.kind)
+    }
 }
