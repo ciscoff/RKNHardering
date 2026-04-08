@@ -3,4 +3,35 @@
     <string name="github_repo_label">GitHub</string>
     <string name="github_repo_url">https://github.com/xtclovver/RKNHardering</string>
     <string name="run_check_notice">Во время проверки приложение выполнит сетевые запросы к доменам:\n• api.beacondb.net\n• ip-api.com\n• api.ipapi.is\n• www.iplocate.io\n• ipv4-internet.yandex.net\n• ipv6-internet.yandex.net\n• 2ip.ru\n• ifconfig.me\n• ipv4.ifconfig.me\n• ipv6.ifconfig.me\n• checkip.amazonaws.com\n• api.ipify.org\n• api-ipv4.ip.sb\n• api-ipv6.ip.sb\n\nНажимая кнопку «Запустить проверку», вы соглашаетесь, что с вашего устройства будут выполнены запросы к этим доменам.\n\nПриложение не ведет логи этих запросов. Доступ к сети можно будет отключить в настройках приложения.</string>
+
+    <string name="settings_title">Настройки</string>
+    <string name="settings_section_checks">Проверки</string>
+    <string name="settings_section_privacy">Приватность</string>
+    <string name="settings_section_appearance">Оформление</string>
+    <string name="settings_section_about">О приложении</string>
+    <string name="settings_split_tunnel">Split tunnel bypass</string>
+    <string name="settings_split_tunnel_desc">Сканирование портов занимает много времени</string>
+    <string name="settings_port_range">Диапазон портов</string>
+    <string name="settings_port_range_desc">Для сканирования Split tunnel</string>
+    <string name="settings_port_popular">Популярные</string>
+    <string name="settings_port_extended">Расширенный</string>
+    <string name="settings_port_full">Полный</string>
+    <string name="settings_port_custom">Кастомный</string>
+    <string name="settings_network_requests">Сетевые запросы</string>
+    <string name="settings_network_requests_desc">GeoIP, IP сравнение, BeaconDB</string>
+    <string name="settings_network_disable_title">Отключить сетевые запросы?</string>
+    <string name="settings_network_disable_message">При отключении:\n\n• GeoIP проверка не будет выполнена\n• Сравнение IP-адресов через внешние сервисы отключится\n• Геолокация через BeaconDB (вышки/Wi-Fi) отключится\n\nБудут работать только локальные проверки: прямые признаки, косвенные признаки, сканирование портов</string>
+    <string name="settings_network_disable_confirm">Отключить</string>
+    <string name="settings_privacy_mode">Приватный режим</string>
+    <string name="settings_privacy_mode_desc">IP отображается как 185.22.*.*</string>
+    <string name="settings_theme">Тема</string>
+    <string name="settings_theme_light">Светлая</string>
+    <string name="settings_theme_dark">Тёмная</string>
+    <string name="settings_theme_system">Системная</string>
+    <string name="settings_permissions">Разрешения</string>
+    <string name="settings_permissions_desc">Управление разрешениями приложения</string>
+    <string name="settings_github">GitHub</string>
+    <string name="settings_github_desc">xtclovver/RKNHardering</string>
+    <string name="settings_port_range_from">От</string>
+    <string name="settings_port_range_to">До</string>
 </resources>
