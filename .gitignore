@@ -19,6 +19,7 @@
 .android-user-home/
 .gradle-user-home/
 .kotlin/
+xray-protos/bin
 local.properties
 release.jks
 ocr_methodika_vpn_proxy.md
