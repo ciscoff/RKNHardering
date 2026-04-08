@@ -87,6 +87,22 @@ class IpComparisonCheckerTest {
         assertEquals("IPv4/IPv6", result.nonRuGroup.statusLabel)
     }
 
+    @Test
+    fun `ru group with one success and one failure is partial`() {
+        val result = IpComparisonChecker.evaluate(
+            listOf(
+                response("Yandex IPv4", IpCheckerScope.RU, ip = "37.113.42.220"),
+                response("Yandex IPv6", IpCheckerScope.RU, error = "connect failed"),
+                response("ifconfig.me", IpCheckerScope.NON_RU, ip = "37.113.42.220"),
+                response("checkip.amazonaws.com", IpCheckerScope.NON_RU, ip = "37.113.42.220"),
+            ),
+        )
+
+        assertFalse(result.detected)
+        assertTrue(result.needsReview)
+        assertEquals("Частично", result.ruGroup.statusLabel)
+    }
+
     private fun response(
         label: String,
         scope: IpCheckerScope,

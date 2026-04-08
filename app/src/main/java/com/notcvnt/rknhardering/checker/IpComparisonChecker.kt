@@ -26,9 +26,24 @@ object IpComparisonChecker {
 
     private val ENDPOINTS = listOf(
         EndpointSpec(
-            label = "Yandex",
+            label = "Yandex IPv4",
             url = "https://ipv4-internet.yandex.net/api/v0/ip",
             scope = IpCheckerScope.RU,
+        ),
+        EndpointSpec(
+            label = "Yandex IPv6",
+            url = "https://ipv6-internet.yandex.net/api/v0/ip",
+            scope = IpCheckerScope.RU,
+        ),
+        EndpointSpec(
+            label = "ifconfig.me",
+            url = "https://ifconfig.me/ip",
+            scope = IpCheckerScope.NON_RU,
+        ),
+        EndpointSpec(
+            label = "checkip.amazonaws.com",
+            url = "https://checkip.amazonaws.com",
+            scope = IpCheckerScope.NON_RU,
         ),
         EndpointSpec(
             label = "ipify",
