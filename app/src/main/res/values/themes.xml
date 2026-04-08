@@ -7,7 +7,7 @@
         <item name="colorSecondaryContainer">@color/md_secondary_container</item>
         <item name="colorOnSecondaryContainer">@color/md_on_secondary_container</item>
         <item name="colorSurface">@color/md_surface</item>
-        <item name="colorSurfaceVariant">@color/md_surface_container</item>
+        <item name="colorSurfaceContainer">@color/md_surface_container</item>
         <item name="android:colorBackground">@color/md_surface</item>
     </style>
 
