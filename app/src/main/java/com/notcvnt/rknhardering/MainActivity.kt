@@ -368,6 +368,7 @@ class MainActivity : AppCompatActivity() {
     private fun createGeoInfoView(label: String, value: String): View {
         val row = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
             setPadding(0, 4.dp, 0, 4.dp)
         }
 
@@ -386,7 +387,11 @@ class MainActivity : AppCompatActivity() {
             textSize = 13f
             val tv = TypedValue()
             this@MainActivity.theme.resolveAttribute(android.R.attr.textColorPrimary, tv, true)
-            setTextColor(ContextCompat.getColor(this@MainActivity, tv.resourceId))
+            if (tv.resourceId != 0) {
+                setTextColor(ContextCompat.getColor(this@MainActivity, tv.resourceId))
+            } else if (tv.type >= TypedValue.TYPE_FIRST_COLOR_INT && tv.type <= TypedValue.TYPE_LAST_COLOR_INT) {
+                setTextColor(tv.data)
+            }
             layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.62f)
         }
 
