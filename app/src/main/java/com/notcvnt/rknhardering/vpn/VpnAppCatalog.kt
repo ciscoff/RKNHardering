@@ -34,6 +34,8 @@ object VpnAppCatalog {
     const val FAMILY_LANTERN = "Lantern"
     const val FAMILY_DPI = "DPI bypass"
     const val FAMILY_AMNEZIA = "AmneziaVPN"
+    const val FAMILY_TG_WS_PROXY = "tg-ws-proxy"
+    const val FAMILY_TERMUX = "Termux"
 
     val signatures: List<VpnAppSignature> = listOf(
         VpnAppSignature(
@@ -179,6 +181,30 @@ object VpnAppCatalog {
             appName = "AmneziaWG",
             family = FAMILY_AMNEZIA,
             kind = VpnAppKind.GENERIC_VPN,
+        ),
+        VpnAppSignature(
+            packageName = "com.termux",
+            appName = "Termux",
+            family = FAMILY_TERMUX,
+            kind = VpnAppKind.TARGETED_BYPASS,
+            defaultPorts = setOf(1080, 1443),
+            signals = setOf(VpnClientSignal.LOCAL_PROXY),
+        ),
+        VpnAppSignature(
+            packageName = "org.aspect.tgwsproxy",
+            appName = "tg-ws-proxy",
+            family = FAMILY_TG_WS_PROXY,
+            kind = VpnAppKind.TARGETED_BYPASS,
+            defaultPorts = setOf(1080, 1443),
+            signals = setOf(VpnClientSignal.LOCAL_PROXY),
+        ),
+        VpnAppSignature(
+            packageName = "org.aspect.tgwsproxy.android",
+            appName = "tg-ws-proxy (Android)",
+            family = FAMILY_TG_WS_PROXY,
+            kind = VpnAppKind.TARGETED_BYPASS,
+            defaultPorts = setOf(1080, 1443),
+            signals = setOf(VpnClientSignal.LOCAL_PROXY),
         ),
     )
 

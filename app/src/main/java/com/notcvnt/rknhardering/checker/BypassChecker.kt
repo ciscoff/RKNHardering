@@ -6,8 +6,10 @@ import com.notcvnt.rknhardering.model.EvidenceItem
 import com.notcvnt.rknhardering.model.EvidenceSource
 import com.notcvnt.rknhardering.model.Finding
 import com.notcvnt.rknhardering.probe.IfconfigClient
+import com.notcvnt.rknhardering.probe.MtProtoProber
 import com.notcvnt.rknhardering.probe.ProxyEndpoint
 import com.notcvnt.rknhardering.probe.ProxyScanner
+import com.notcvnt.rknhardering.probe.ProxyType
 import com.notcvnt.rknhardering.probe.ScanMode
 import com.notcvnt.rknhardering.probe.XrayApiScanResult
 import com.notcvnt.rknhardering.probe.XrayApiScanner
@@ -97,6 +99,30 @@ object BypassChecker {
                 )
             } else if (directIp != null && proxyIp != null) {
                 findings.add(Finding("Per-app split отключен: IP совпадают"))
+            }
+
+            // MTProto probe: if SOCKS5 proxy found but HTTP didn't work through it,
+            // check if it forwards Telegram DC traffic (MTProto-only proxy like tg-ws-proxy).
+            // Informational only — does not contribute to verdict scoring.
+            if (proxyEndpoint.type == ProxyType.SOCKS5 && proxyIp == null) {
+                onProgress?.invoke(Progress("MTProto probe", "Проверка Telegram DC через прокси..."))
+                val mtResult = MtProtoProber.probe(proxyEndpoint.host, proxyEndpoint.port)
+                if (mtResult.reachable) {
+                    val addr = mtResult.targetAddress
+                    findings.add(
+                        Finding(
+                            description = "MTProto-прокси: Telegram DC доступен через " +
+                                "${formatHostPort(proxyEndpoint.host, proxyEndpoint.port)}" +
+                                " -> ${addr?.address?.hostAddress}:${addr?.port}",
+                            detected = true,
+                            source = EvidenceSource.LOCAL_PROXY,
+                            confidence = EvidenceConfidence.HIGH,
+                            family = VpnAppCatalog.FAMILY_TG_WS_PROXY,
+                        ),
+                    )
+                } else {
+                    findings.add(Finding("MTProto probe: Telegram DC недоступен через прокси"))
+                }
             }
         }
 
