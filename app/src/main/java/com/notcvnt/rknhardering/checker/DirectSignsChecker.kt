@@ -81,7 +81,7 @@ object DirectSignsChecker {
             Finding(
                 description = "TRANSPORT_VPN: ${if (hasVpnTransport) "обнаружен" else "не обнаружен"}",
                 detected = hasVpnTransport,
-                source = EvidenceSource.NETWORK_CAPABILITIES,
+                source = EvidenceSource.DIRECT_NETWORK_CAPABILITIES,
                 confidence = hasVpnTransport.takeIf { it }?.let { EvidenceConfidence.HIGH },
             ),
         )
@@ -89,7 +89,7 @@ object DirectSignsChecker {
             detected = true
             evidence.add(
                 EvidenceItem(
-                    source = EvidenceSource.NETWORK_CAPABILITIES,
+                    source = EvidenceSource.DIRECT_NETWORK_CAPABILITIES,
                     detected = true,
                     confidence = EvidenceConfidence.HIGH,
                     description = "Active network reports TRANSPORT_VPN",
@@ -105,13 +105,13 @@ object DirectSignsChecker {
                 Finding(
                     description = "Флаг IS_VPN обнаружен в capabilities",
                     detected = true,
-                    source = EvidenceSource.NETWORK_CAPABILITIES,
+                    source = EvidenceSource.DIRECT_NETWORK_CAPABILITIES,
                     confidence = EvidenceConfidence.HIGH,
                 ),
             )
             evidence.add(
                 EvidenceItem(
-                    source = EvidenceSource.NETWORK_CAPABILITIES,
+                    source = EvidenceSource.DIRECT_NETWORK_CAPABILITIES,
                     detected = true,
                     confidence = EvidenceConfidence.HIGH,
                     description = "NetworkCapabilities string contains IS_VPN",
@@ -126,13 +126,13 @@ object DirectSignsChecker {
                 Finding(
                     description = "VpnTransportInfo обнаружен в транспортной информации",
                     detected = true,
-                    source = EvidenceSource.NETWORK_CAPABILITIES,
+                    source = EvidenceSource.DIRECT_NETWORK_CAPABILITIES,
                     confidence = EvidenceConfidence.HIGH,
                 ),
             )
             evidence.add(
                 EvidenceItem(
-                    source = EvidenceSource.NETWORK_CAPABILITIES,
+                    source = EvidenceSource.DIRECT_NETWORK_CAPABILITIES,
                     detected = true,
                     confidence = EvidenceConfidence.HIGH,
                     description = "NetworkCapabilities string contains VpnTransportInfo",
@@ -153,25 +153,30 @@ object DirectSignsChecker {
             ?: Proxy.getDefaultPort().takeIf { it > 0 }?.toString()
         val socksHost = System.getProperty("socksProxyHost")
         val socksPort = System.getProperty("socksProxyPort")
+        var detected = false
         var needsReview = false
 
-        needsReview = addProxyFinding(
+        val httpOutcome = addProxyFinding(
             type = "HTTP прокси",
             host = httpHost,
             port = httpPort,
             findings = findings,
             evidence = evidence,
-        ) || needsReview
+        )
+        detected = detected || httpOutcome.detected
+        needsReview = needsReview || httpOutcome.needsReview
 
-        needsReview = addProxyFinding(
+        val socksOutcome = addProxyFinding(
             type = "SOCKS прокси",
             host = socksHost,
             port = socksPort,
             findings = findings,
             evidence = evidence,
-        ) || needsReview
+        )
+        detected = detected || socksOutcome.detected
+        needsReview = needsReview || socksOutcome.needsReview
 
-        return SignalOutcome(needsReview = needsReview)
+        return SignalOutcome(detected = detected, needsReview = needsReview)
     }
 
     private fun addProxyFinding(
@@ -180,20 +185,27 @@ object DirectSignsChecker {
         port: String?,
         findings: MutableList<Finding>,
         evidence: MutableList<EvidenceItem>,
-    ): Boolean {
+    ): SignalOutcome {
         if (host.isNullOrBlank()) {
             findings.add(Finding("$type: не настроен"))
-            return false
+            return SignalOutcome()
         }
 
+        val validPort = port?.toIntOrNull()?.takeIf { it > 0 }
         val knownPort = isKnownProxyPort(port)
-        val confidence = if (knownPort) EvidenceConfidence.MEDIUM else EvidenceConfidence.LOW
+        val hasEndpoint = validPort != null
+        val confidence = when {
+            hasEndpoint && knownPort -> EvidenceConfidence.MEDIUM
+            hasEndpoint -> EvidenceConfidence.LOW
+            else -> EvidenceConfidence.LOW
+        }
         val description = "$type: $host:${port ?: "N/A"}"
 
         findings.add(
             Finding(
                 description = description,
-                needsReview = true,
+                detected = hasEndpoint,
+                needsReview = !hasEndpoint,
                 source = EvidenceSource.SYSTEM_PROXY,
                 confidence = confidence,
             ),
@@ -201,17 +213,17 @@ object DirectSignsChecker {
         evidence.add(
             EvidenceItem(
                 source = EvidenceSource.SYSTEM_PROXY,
-                detected = true,
+                detected = hasEndpoint,
                 confidence = confidence,
                 description = description,
             ),
         )
 
-        if (knownPort) {
+        if (hasEndpoint && knownPort) {
             findings.add(
                 Finding(
                     description = "$type использует характерный порт $port",
-                    needsReview = true,
+                    detected = true,
                     source = EvidenceSource.SYSTEM_PROXY,
                     confidence = EvidenceConfidence.MEDIUM,
                 ),
@@ -226,7 +238,35 @@ object DirectSignsChecker {
             )
         }
 
-        return true
+        if (!hasEndpoint) {
+            findings.add(
+                Finding(
+                    description = "$type: хост найден без валидного порта",
+                    needsReview = true,
+                    source = EvidenceSource.SYSTEM_PROXY,
+                    confidence = EvidenceConfidence.LOW,
+                ),
+            )
+        }
+
+        return SignalOutcome(detected = hasEndpoint, needsReview = !hasEndpoint)
+    }
+
+    internal fun evaluateProxyEndpoint(
+        type: String,
+        host: String?,
+        port: String?,
+    ): CategoryResult {
+        val findings = mutableListOf<Finding>()
+        val evidence = mutableListOf<EvidenceItem>()
+        val outcome = addProxyFinding(type, host, port, findings, evidence)
+        return CategoryResult(
+            name = type,
+            detected = outcome.detected,
+            findings = findings,
+            needsReview = outcome.needsReview,
+            evidence = evidence,
+        )
     }
 
     internal fun isKnownProxyPort(port: String?): Boolean {

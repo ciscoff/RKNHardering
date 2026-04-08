@@ -5,7 +5,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Typeface
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.util.TypedValue
@@ -141,29 +140,18 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun requiredPermissions(): Array<String> {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            arrayOf(Manifest.permission.READ_PHONE_STATE, Manifest.permission.NEARBY_WIFI_DEVICES)
-        } else {
-            arrayOf(
-                Manifest.permission.READ_PHONE_STATE,
-                Manifest.permission.ACCESS_COARSE_LOCATION,
-                Manifest.permission.ACCESS_FINE_LOCATION,
-            )
-        }
+        return arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
     }
 
     private fun showPermissionRationale(permissions: Array<String> = requiredPermissions()) {
         AlertDialog.Builder(this)
-            .setTitle("Дополнительные разрешения")
+            .setTitle("Дополнительное разрешение")
             .setMessage(
-                "Для повышения точности проверки приложению нужны дополнительные разрешения:\n\n" +
-                    "\u2022 Состояние телефона \u2014 определяет страну сотового оператора для сравнения " +
-                    "с IP-геолокацией. Например, Госуслуги запрашивает это разрешение для " +
-                    "верификации региона при входе.\n\n" +
-                    "\u2022 Местоположение \u2014 считывает идентификатор Wi-Fi точки доступа (BSSID) " +
-                    "для уточнения местоположения. Например, 2ГИС запрашивает это разрешение " +
-                    "для построения маршрута.\n\n" +
-                    "Без этих разрешений проверка будет работать, но с меньшей точностью.",
+                "Для более точной проверки приложению нужен доступ к точной геолокации.\n\n" +
+                    "Он используется для чтения идентификаторов базовых станций, lookup по cell ID " +
+                    "и доступа к BSSID текущей Wi-Fi сети.\n\n" +
+                    "Без этого разрешения проверка продолжит работать, но часть сигналов " +
+                    "местоположения будет недоступна.",
             )
             .setPositiveButton("Разрешить") { _, _ ->
                 launchPermissionRequest(permissions)

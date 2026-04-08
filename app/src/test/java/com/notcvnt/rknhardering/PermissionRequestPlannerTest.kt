@@ -16,7 +16,7 @@ class PermissionRequestPlannerTest {
         val action = PermissionRequestPlanner.decideAction(
             listOf(
                 PermissionRequestPlanner.PermissionState(
-                    permission = "android.permission.READ_PHONE_STATE",
+                    permission = "android.permission.ACCESS_FINE_LOCATION",
                     shouldShowRationale = false,
                     wasRequestedBefore = false,
                 ),
@@ -31,7 +31,7 @@ class PermissionRequestPlannerTest {
         val action = PermissionRequestPlanner.decideAction(
             listOf(
                 PermissionRequestPlanner.PermissionState(
-                    permission = "android.permission.READ_PHONE_STATE",
+                    permission = "android.permission.ACCESS_FINE_LOCATION",
                     shouldShowRationale = true,
                     wasRequestedBefore = true,
                 ),
@@ -46,12 +46,12 @@ class PermissionRequestPlannerTest {
         val action = PermissionRequestPlanner.decideAction(
             listOf(
                 PermissionRequestPlanner.PermissionState(
-                    permission = "android.permission.READ_PHONE_STATE",
+                    permission = "android.permission.ACCESS_FINE_LOCATION",
                     shouldShowRationale = false,
                     wasRequestedBefore = true,
                 ),
                 PermissionRequestPlanner.PermissionState(
-                    permission = "android.permission.ACCESS_FINE_LOCATION",
+                    permission = "android.permission.POST_NOTIFICATIONS",
                     shouldShowRationale = false,
                     wasRequestedBefore = true,
                 ),
@@ -66,7 +66,7 @@ class PermissionRequestPlannerTest {
         val action = PermissionRequestPlanner.decideAction(
             listOf(
                 PermissionRequestPlanner.PermissionState(
-                    permission = "android.permission.READ_PHONE_STATE",
+                    permission = "android.permission.POST_NOTIFICATIONS",
                     shouldShowRationale = false,
                     wasRequestedBefore = true,
                 ),

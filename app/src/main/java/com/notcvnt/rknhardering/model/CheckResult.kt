@@ -11,7 +11,8 @@ enum class EvidenceConfidence {
 
 enum class EvidenceSource {
     GEO_IP,
-    NETWORK_CAPABILITIES,
+    DIRECT_NETWORK_CAPABILITIES,
+    INDIRECT_NETWORK_CAPABILITIES,
     SYSTEM_PROXY,
     INSTALLED_APP,
     VPN_SERVICE_DECLARATION,
@@ -22,6 +23,7 @@ enum class EvidenceSource {
     NETWORK_INTERFACE,
     ROUTING,
     DNS,
+    PROXY_TECHNICAL_SIGNAL,
     DUMPSYS,
     LOCATION_SIGNALS,
     VPN_GATEWAY_LEAK,
