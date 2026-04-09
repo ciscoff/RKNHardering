@@ -1,5 +1,5 @@
 [versions]
-agp = "9.1.0"
+agp = "8.13.2"
 coreKtx = "1.10.1"
 junit = "4.13.2"
 junitVersion = "1.1.5"
@@ -14,6 +14,8 @@ grpc = "1.64.0"
 protobuf = "3.25.5"
 protobufPlugin = "0.9.6"
 okhttp = "4.12.0"
+kotlin = "2.2.20"
+coreKtxVersion = "1.18.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -34,7 +36,9 @@ javax-annotation-api = { group = "javax.annotation", name = "javax.annotation-ap
 okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
 okhttp-dnsoverhttps = { group = "com.squareup.okhttp3", name = "okhttp-dnsoverhttps", version.ref = "okhttp" }
 okhttp-mockwebserver = { group = "com.squareup.okhttp3", name = "mockwebserver", version.ref = "okhttp" }
+core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtxVersion" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 google-protobuf = { id = "com.google.protobuf", version.ref = "protobufPlugin" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
